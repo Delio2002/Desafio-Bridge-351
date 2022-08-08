@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/homeFragment2">
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.example.pokemonapp2022.presenter.splash.SplashFragment"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash" >
+        <action
+            android:id="@+id/action_splashFragment_to_homeFragment2"
+            app:destination="@id/homeFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment2"
+        android:name="com.example.pokemonapp2022.presenter.home.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment2_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="com.example.pokemonapp2022.presenter.detail.DetailFragment"
+        android:label="fragment_detail"
+        tools:layout="@layout/fragment_detail" >
+        <argument
+            android:name="pokemon"
+            app:argType="com.example.pokemonapp2022.presenter.home.dataui.PokemonDataUi" />
+    </fragment>
+</navigation>

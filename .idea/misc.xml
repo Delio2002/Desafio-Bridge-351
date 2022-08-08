@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable-v24/bg_type_name.xml" value="0.1025" />
+        <entry key="app/src/main/res/drawable/text_view_searcher_style.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.16216216216216217" />
+        <entry key="app/src/main/res/layout/fragment_about.xml" value="0.2056159420289855" />
+        <entry key="app/src/main/res/layout/fragment_detail.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.18016357421875" />
+        <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_stats.xml" value="0.2056159420289855" />
+        <entry key="app/src/main/res/layout/fragment_view_pager.xml" value="0.2056159420289855" />
+        <entry key="app/src/main/res/layout/item_list.xml" value="0.32323232323232326" />
+        <entry key="app/src/main/res/layout/item_pokemon_list.xml" value="0.21141662597656252" />
+        <entry key="app/src/main/res/menu/custom_menu.xml" value="0.1" />
+        <entry key="app/src/main/res/menu/details_menu.xml" value="0.24270833333333333" />
+        <entry key="app/src/main/res/menu/home_fragment_menu.xml" value="0.24166666666666667" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.18016357421875" />
+      </ProjectState>
+    </option>
+  </component>
+</project>
