@@ -4,7 +4,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.example.pokemonapp2022.domain.model.PokemonList
 import com.example.pokemonapp2022.domain.model.Result
-import com.example.pokemonapp2022.domain.usecase.GetAllPokemonUseCaseImp
+import com.example.pokemonapp2022.domain.usecase.GetAllPokemonUseCase
+import com.example.pokemonapp2022.network.utils.ResultRemote
 import com.example.pokemonapp2022.presenter.home.HomeViewState
 import com.example.pokemonapp2022.presenter.home.mapper.toPokemonDataUi
 import io.mockk.MockKAnnotations
@@ -24,6 +25,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
+private val mockPokemonList = PokemonList(
+    results = listOf(Result(name = "teste", url = "testkjhkhkh/88876asdsaddsfs.com")),
+    next = "",
+)
+
+private val mockPokemonListDataUi = mockPokemonList.results.map { it.toPokemonDataUi() }
+
 @ExperimentalCoroutinesApi
 class HomeViewModelTest {
 
@@ -34,21 +42,12 @@ class HomeViewModelTest {
     var rule: TestRule = InstantTaskExecutorRule()
 
     @MockK
-    lateinit var getAllPokemonUseCase: GetAllPokemonUseCaseImp
-
-    @get:Rule
-    val instantTaskExecutionRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
-
-    private val mockPokemonList = PokemonList(
-        results = listOf(Result(name = "teste", url = "test/asdsaddsfs.com")),
-        next = "",
-    )
+    lateinit var mockGetAllPokemonUseCase: GetAllPokemonUseCase
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        Dispatchers.setMain(testDispatcher)
-        viewModel = HomeViewModel(getAllPokemonUseCase, testDispatcher)
+        viewModel = HomeViewModel(mockGetAllPokemonUseCase, testDispatcher)
     }
 
     @After
@@ -61,22 +60,18 @@ class HomeViewModelTest {
     fun GetAllPokemon() {
         runBlocking {
 
-            coEvery { getAllPokemonUseCase.invoke() } returns flowOf(mockPokemonList)
+            var mockResultRemote = ResultRemote.Success(mockPokemonList)
+
+            coEvery { mockGetAllPokemonUseCase.invoke() } returns flowOf(mockResultRemote)
 
             viewModel.state.test {
-                viewModel.fetchPokemonList()
-                assertEquals(HomeViewState.Loading(true), awaitItem())
-                assertEquals(
-                    HomeViewState.Success(mockPokemonList.results.map { it.toPokemonDataUi() }),
-                    awaitItem()
-                )
+                viewModel = HomeViewModel(mockGetAllPokemonUseCase, testDispatcher)
+                assertEquals(HomeViewState.Loading, awaitItem())
+                assertEquals(HomeViewState.Success(mockPokemonListDataUi), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
     }
 }
-
-
-
 
 

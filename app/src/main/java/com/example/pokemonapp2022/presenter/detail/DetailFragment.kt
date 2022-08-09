@@ -7,14 +7,12 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.pokemonapp2022.MainActivity
 import com.example.pokemonapp2022.R
@@ -22,21 +20,16 @@ import com.example.pokemonapp2022.databinding.FragmentDetailBinding
 import com.example.pokemonapp2022.presenter.detail.adapter.AbilitiesAdapter
 import com.example.pokemonapp2022.presenter.detail.dataui.PokemonDetailDataUi
 import com.example.pokemonapp2022.presenter.detail.viewmodel.DetailViewModel
-import com.example.pokemonapp2022.presenter.home.HomeViewState
-import com.example.pokemonapp2022.presenter.home.viewmodel.HomeViewModel
 import com.example.pokemonapp2022.presenter.utils.heightFormat
 import com.example.pokemonapp2022.presenter.utils.setTypeBackground
 import com.example.pokemonapp2022.presenter.utils.setTypeColor
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DetailFragment : Fragment() {
 
     private val args: DetailFragmentArgs by navArgs()
     private lateinit var binding: FragmentDetailBinding
-    private lateinit var rvAbilities: RecyclerView
-    private val mAdapter: AbilitiesAdapter by lazy { AbilitiesAdapter() }
-    private lateinit var rotateAnimation: Animation
+    private val abilitiesAdapter: AbilitiesAdapter by lazy { AbilitiesAdapter() }
     private val viewModel: DetailViewModel by viewModel()
 
     override fun onCreateView(
@@ -44,8 +37,10 @@ class DetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetailBinding.inflate(layoutInflater, container, false)
-        observeState()
-        viewModel.fetchPokemonList(args.pokemon.name)
+        setupActionBar()
+        setupRecyclerView()
+        setupObservers()
+        viewModel.fetchPokemon(args.pokemon.name)
         return binding.root
     }
 
@@ -54,12 +49,7 @@ class DetailFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    private fun ImageView.rotateAnimation() {
-        rotateAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate)
-        this.startAnimation(rotateAnimation)
-    }
-
-    private fun setupViews(pokemonDetailDataUi: PokemonDetailDataUi) {
+    private fun setupView(pokemonDetailDataUi: PokemonDetailDataUi) {
         binding.constraintParent.setTypeColor(pokemonDetailDataUi.types[0].type.name)
         binding.mtvPokemonTitle.text = pokemonDetailDataUi.name.toUpperCase()
         binding.mtvPokemonNumber.text = "#" + pokemonDetailDataUi.id.toString().padStart(3, '0')
@@ -67,99 +57,119 @@ class DetailFragment : Fragment() {
         binding.mtvPokemonHeight.text = pokemonDetailDataUi.height?.heightFormat()
         binding.mtvPokemonWeight.text = pokemonDetailDataUi.weight.toString()
         binding.mtvPokemonBaseExperience.text = pokemonDetailDataUi.base_experience.toString()
-        binding.mivPokeball.rotateAnimation()
         binding.mivPokemonPhoto.load(args.pokemon.imageUrl)
-        (activity as MainActivity).supportActionBar.let {
-            it?.setBackgroundDrawable(resources.getDrawable(R.color.white_100_percent_opacity))
-            it?.title = ""
-        }
-        requireActivity().window.statusBarColor =
-           resources.getColor(setTypeBackground(pokemonDetailDataUi.types[0].type.name))
-
-    }
-
-    private fun observeState() {
-        lifecycleScope.launch {
-            viewModel.state.collect {
-                when (it) {
-                    is DetailViewState.Initial -> {
-                        binding.apply {
-                            mivPokemonPhoto.visibility = View.GONE
-                            mivPokeball.visibility = View.GONE
-                            mtvPokemonBaseExperience.visibility = View.GONE
-                            mtvPokemonWeight.visibility = View.GONE
-                            mtvPokemonHeight.visibility = View.GONE
-                            mtvPokemonName.visibility = View.GONE
-                            mtvPokemonNumber.visibility = View.GONE
-                            mtvPokemonTitle.visibility = View.GONE
-                            materialCardView.visibility = View.GONE
-                            mrvPokemonAbilities.visibility = View.GONE
-                            mtvAbilities.visibility = View.GONE
-                            mivPokemonPhoto.visibility = View.GONE
-                        }
-                    }
-                    is DetailViewState.Loading -> {
-                        binding.apply {
-                            mivPokemonPhoto.visibility = View.GONE
-                            mivPokeball.visibility = View.GONE
-                            mtvPokemonBaseExperience.visibility = View.GONE
-                            mtvPokemonWeight.visibility = View.GONE
-                            mtvPokemonHeight.visibility = View.GONE
-                            mtvPokemonName.visibility = View.GONE
-                            mtvPokemonNumber.visibility = View.GONE
-                            mtvPokemonTitle.visibility = View.GONE
-                            materialCardView.visibility = View.GONE
-                            mrvPokemonAbilities.visibility = View.GONE
-                            mtvAbilities.visibility = View.GONE
-                            mivPokemonPhoto.visibility = View.GONE
-                        }
-                    }
-                    is DetailViewState.Success -> {
-                        setupViews(it.data)
-                        mAdapter.setData(it.data.abilities)
-                        setupRecyclerView()
-                        binding.mivPokemonPhoto.visibility = View.VISIBLE
-                        binding.mivPokeball.visibility = View.VISIBLE
-                        binding.mtvPokemonBaseExperience.visibility = View.VISIBLE
-                        binding.mtvPokemonWeight.visibility = View.VISIBLE
-                        binding.mtvPokemonHeight.visibility = View.VISIBLE
-                        binding.mtvPokemonName.visibility = View.VISIBLE
-                        binding.mtvPokemonNumber.visibility = View.VISIBLE
-                        binding.mtvPokemonTitle.visibility = View.VISIBLE
-                        binding.materialCardView.visibility = View.VISIBLE
-                        binding.mrvPokemonAbilities.visibility = View.VISIBLE
-                        binding.mtvAbilities.visibility = View.VISIBLE
-
-
-                    }
-                    is DetailViewState.Error -> {
-                        binding.mivPokemonPhoto.visibility = View.GONE
-                        binding.mivPokeball.visibility = View.GONE
-                        binding.mtvPokemonBaseExperience.visibility = View.GONE
-                        binding.mtvPokemonWeight.visibility = View.GONE
-                        binding.mtvPokemonHeight.visibility = View.GONE
-                        binding.mtvPokemonName.visibility = View.GONE
-                        binding.mtvPokemonNumber.visibility = View.GONE
-                        binding.mtvPokemonTitle.visibility = View.GONE
-                        binding.materialCardView.visibility = View.GONE
-                        binding.mrvPokemonAbilities.visibility = View.GONE
-                        binding.mtvAbilities.visibility = View.GONE
-                        Toast.makeText(requireContext(), it.error, Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-        }
-
+        changeActionBarColor(pokemonDetailDataUi)
     }
 
     private fun setupRecyclerView() {
-        rvAbilities = binding.mrvPokemonAbilities
-        rvAbilities.apply {
-            adapter = mAdapter
+        binding.mrvPokemonAbilities.apply {
+            adapter = abilitiesAdapter
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         }
     }
 
+    private fun changeActionBarColor(pokemonDetailDataUi: PokemonDetailDataUi) {
+        (activity as MainActivity).supportActionBar.let {
+            it?.setBackgroundDrawable(resources.getDrawable(R.color.white_100_percent_opacity))
+            it?.title = ""
+        }
+        requireActivity().window.statusBarColor =
+            resources.getColor(setTypeBackground(pokemonDetailDataUi.types[0].type.name))
+    }
+
+    private fun setupActionBar() {
+        requireActivity().window.statusBarColor =
+            resources.getColor(R.color.white_100_percent_opacity)
+        (activity as MainActivity).supportActionBar.let {
+            it?.setBackgroundDrawable(
+                resources.getDrawable(
+                    R.color.white_100_percent_opacity,
+                    resources.newTheme()
+                )
+            )
+        }
+    }
+
+    private fun setupObservers() {
+        lifecycleScope.launchWhenCreated {
+            viewModel.state.collect {
+                when (it) {
+                    is DetailViewState.Success -> showSuccessState(it.data)
+                    is DetailViewState.Loading -> showLoadingState()
+                    is DetailViewState.Error -> showErrorState(it.error)
+                    is DetailViewState.Initial -> showInitialState()
+                }
+            }
+        }
+    }
+
+    private fun showInitialState() {
+        binding.apply {
+            constraintParent.isVisible = false
+        }
+    }
+
+    private fun showSuccessState(pokemonDetailDataUi: PokemonDetailDataUi) {
+        setupView(pokemonDetailDataUi)
+        abilitiesAdapter.setData(pokemonDetailDataUi.abilities)
+        binding.apply {
+            constraintParent.isVisible = true
+            animateUi()
+            (activity as AppCompatActivity).supportActionBar?.show()
+        }
+    }
+
+    private fun showLoadingState() {
+        showInitialState()
+    }
+
+    private fun showErrorState(message: String) {
+        binding.apply {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            (activity as AppCompatActivity).supportActionBar?.hide()
+        }
+    }
+
+    private fun animateUi() {
+
+        binding.constraintParent.alpha = 0f
+        binding.materialCardView.translationY = 80f
+        binding.mivPokemonPhoto.scaleX = 0.01f
+        binding.mivPokemonPhoto.scaleY = 0.01f
+
+        binding.mtvPokemonTitle.translationY = 10f
+        binding.mtvPokemonNumber.translationY = 10f
+
+        Thread {
+
+            binding.constraintParent.animate().apply {
+                alpha(1f)
+            }
+
+            Thread.sleep(90)
+
+            binding.materialCardView.animate().apply {
+                translationY(0f)
+            }
+
+            binding.mtvPokemonTitle.animate().apply {
+                translationY(0f)
+            }
+
+            binding.mtvPokemonNumber.animate().apply {
+                translationY(0f)
+            }
+
+            Thread.sleep(100)
+
+            binding.mivPokemonPhoto.animate().apply {
+                scaleX(1.001f)
+                scaleY(1.001f)
+            }
+        }.start()
+
+
+    }
 
 }

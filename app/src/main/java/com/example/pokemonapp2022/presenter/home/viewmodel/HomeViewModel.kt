@@ -3,21 +3,21 @@ package com.example.pokemonapp2022.presenter.home.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokemonapp2022.domain.usecase.GetAllPokemonUseCase
-import com.example.pokemonapp2022.domain.usecase.GetAllPokemonUseCaseImp
+import com.example.pokemonapp2022.network.utils.ResultRemote
 import com.example.pokemonapp2022.presenter.home.HomeViewState
-import com.example.pokemonapp2022.presenter.home.dataui.PokemonDataUi
-import com.example.pokemonapp2022.presenter.utils.getPokemonPhotoURL
+import com.example.pokemonapp2022.presenter.home.mapper.toPokemonDataUi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-
-class HomeViewModel(private val getAllPokemonUseCaseImp: GetAllPokemonUseCaseImp, private val dispatcher: CoroutineDispatcher = Dispatchers.IO) : ViewModel() {
+class HomeViewModel(
+    private val getAllPokemonUseCase: GetAllPokemonUseCase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ViewModel() {
 
     private val _viewState = MutableSharedFlow<HomeViewState>()
     val state: MutableSharedFlow<HomeViewState> get() = _viewState
@@ -26,31 +26,30 @@ class HomeViewModel(private val getAllPokemonUseCaseImp: GetAllPokemonUseCaseImp
         fetchPokemonList()
     }
 
-    fun fetchPokemonList() {
+   private fun fetchPokemonList() {
         viewModelScope.launch(dispatcher) {
-            getAllPokemonUseCaseImp.invoke()
+            getAllPokemonUseCase.invoke()
                 .flowOn(dispatcher)
                 .onStart {
-                    _viewState.emit(HomeViewState.Loading(true))
-                }
-                .onCompletion {
-                   _viewState.emit(HomeViewState.Loading(false))
+                    _viewState.emit(HomeViewState.Loading)
                 }
                 .catch { e ->
                     _viewState.emit(HomeViewState.Error(e.message.toString()))
                 }
                 .collect {
-                    var pokemons = arrayListOf<PokemonDataUi>()
-                    it.results.map { result ->
-                        pokemons.add(
-                            PokemonDataUi(
-                                name = result.name,
-                                imageUrl = result.url.getPokemonPhotoURL()
-                            )
-                        )
+                    when (it) {
+                        is ResultRemote.Success -> {
+                            _viewState.emit(HomeViewState.Success(it.response.results.map { it.toPokemonDataUi() }))
+                        }
+                        is ResultRemote.ErrorResponse.MappedError -> {
+                            _viewState.emit(HomeViewState.Error(it.error.name))
+                        }
+                        is ResultRemote.ErrorResponse.UnknownError -> {
+                            _viewState.emit(HomeViewState.Error(it.messageError))
+                        }
                     }
-                    _viewState.emit(HomeViewState.Success(pokemons))
                 }
+
         }
     }
 

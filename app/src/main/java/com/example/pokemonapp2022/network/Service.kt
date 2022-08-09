@@ -1,6 +1,6 @@
-package com.example.pokemonapp2022.data.network
+package com.example.pokemonapp2022.network
 
-import com.example.pokemonapp2022.data.network.utils.BASE_URL
+import com.example.pokemonapp2022.network.utils.BASE_URL
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
