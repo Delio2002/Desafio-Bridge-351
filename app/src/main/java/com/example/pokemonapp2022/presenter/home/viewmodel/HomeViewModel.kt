@@ -26,10 +26,9 @@ class HomeViewModel(
         fetchPokemonList()
     }
 
-   private fun fetchPokemonList() {
+    fun fetchPokemonList() {
         viewModelScope.launch(dispatcher) {
             getAllPokemonUseCase.invoke()
-                .flowOn(dispatcher)
                 .onStart {
                     _viewState.emit(HomeViewState.Loading)
                 }
