@@ -8,7 +8,7 @@
         <entry key="app/src/main/res/drawable/text_view_searcher_style.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.16216216216216217" />
         <entry key="app/src/main/res/layout/fragment_about.xml" value="0.2056159420289855" />
-        <entry key="app/src/main/res/layout/fragment_detail.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_detail.xml" value="0.27308349609375004" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.36754760742187503" />
         <entry key="app/src/main/res/layout/fragment_stats.xml" value="0.2056159420289855" />
