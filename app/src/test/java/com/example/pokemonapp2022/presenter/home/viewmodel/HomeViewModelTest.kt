@@ -6,8 +6,6 @@ import com.example.pokemonapp2022.domain.model.PokemonList
 import com.example.pokemonapp2022.domain.model.Result
 import com.example.pokemonapp2022.domain.usecase.GetAllPokemonUseCase
 import com.example.pokemonapp2022.network.utils.ResultRemote
-import com.example.pokemonapp2022.presenter.detail.DetailViewState
-import com.example.pokemonapp2022.presenter.detail.viewmodel.mockPokemonName
 import com.example.pokemonapp2022.presenter.home.HomeViewState
 import com.example.pokemonapp2022.presenter.home.mapper.toPokemonDataUi
 import io.mockk.MockKAnnotations
