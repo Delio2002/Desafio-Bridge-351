@@ -1,35 +1,30 @@
 package com.example.pokemonapp2022.presenter.home
 
 import android.os.Bundle
-import android.os.Message
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.pokemonapp2022.MainActivity
 import com.example.pokemonapp2022.R
 import com.example.pokemonapp2022.databinding.FragmentHomeBinding
 import com.example.pokemonapp2022.presenter.home.adapter.PokemonAdapter
-import com.example.pokemonapp2022.presenter.home.dataui.PokemonDataUi
+import com.example.pokemonapp2022.presenter.home.dataui.PokemonItemDataUi
 import com.example.pokemonapp2022.presenter.home.viewmodel.HomeViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class HomeFragment : Fragment() {
 
-
-    private val binding: FragmentHomeBinding by lazy {
-        FragmentHomeBinding.inflate(layoutInflater)
-    }
+    private val binding: FragmentHomeBinding by lazy { FragmentHomeBinding.inflate(layoutInflater) }
     private val pokemonAdapter: PokemonAdapter by lazy { PokemonAdapter() }
     private val viewModel: HomeViewModel by viewModel()
 
@@ -80,15 +75,17 @@ class HomeFragment : Fragment() {
         binding.apply {
             mrvPokemonList.isVisible = false
             mpgLoading.isVisible = false
-            mtvTitle.isVisible = false
+            mtvTitle1.isVisible = false
         }
     }
 
-    private fun showSuccessState(productsList: List<PokemonDataUi>) {
-        pokemonAdapter.setData(productsList)
+    private fun showSuccessState(productsList: PagingData<PokemonItemDataUi>) {
+        lifecycleScope.launch {
+            pokemonAdapter.submitData(productsList)
+        }
         binding.apply {
             mrvPokemonList.isVisible = true
-            mtvTitle.isVisible = mrvPokemonList.isVisible
+            mtvTitle1.isVisible = mrvPokemonList.isVisible
             mpgLoading.isVisible = false
             (activity as AppCompatActivity).supportActionBar?.show()
         }
@@ -97,7 +94,7 @@ class HomeFragment : Fragment() {
     private fun showLoadingState() {
         binding.apply {
             mrvPokemonList.isVisible = false
-            mtvTitle.isVisible = false
+            mtvTitle1.isVisible = false
             mpgLoading.isVisible = true
         }
     }
@@ -106,7 +103,7 @@ class HomeFragment : Fragment() {
         binding.apply {
             mrvPokemonList.isVisible = false
             mpgLoading.isVisible = false
-            mtvTitle.isVisible = false
+            mtvTitle1.isVisible = false
             Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
             (activity as AppCompatActivity).supportActionBar?.hide()
         }

@@ -20,6 +20,6 @@
         tools:layout="@layout/fragment_detail" >
         <argument
             android:name="pokemon"
-            app:argType="com.example.pokemonapp2022.presenter.home.dataui.PokemonDataUi" />
+            app:argType="com.example.pokemonapp2022.presenter.home.dataui.PokemonItemDataUi" />
     </fragment>
 </navigation>

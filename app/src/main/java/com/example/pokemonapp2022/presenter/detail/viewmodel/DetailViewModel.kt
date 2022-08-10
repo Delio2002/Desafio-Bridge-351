@@ -7,7 +7,6 @@ import com.example.pokemonapp2022.network.utils.ResultRemote
 import com.example.pokemonapp2022.presenter.detail.DetailViewState
 import com.example.pokemonapp2022.presenter.detail.mapper.toPokemonDetailDataUi
 import com.example.pokemonapp2022.presenter.home.HomeViewState
-import com.example.pokemonapp2022.presenter.home.mapper.toPokemonDataUi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow

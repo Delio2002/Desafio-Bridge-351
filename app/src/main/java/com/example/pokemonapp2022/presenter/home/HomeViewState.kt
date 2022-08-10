@@ -1,9 +1,11 @@
 package com.example.pokemonapp2022.presenter.home
-import com.example.pokemonapp2022.presenter.home.dataui.PokemonDataUi
+import androidx.paging.PagingData
+import com.example.pokemonapp2022.presenter.home.dataui.PokemonItemDataUi
+
 
 sealed class HomeViewState {
     object Initial: HomeViewState()
-    data class Success (val data: List<PokemonDataUi>): HomeViewState()
+    data class Success (val data: PagingData<PokemonItemDataUi> ): HomeViewState()
     object Loading: HomeViewState()
     data class Error(var error: String): HomeViewState()
 }

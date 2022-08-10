@@ -30,7 +30,6 @@ class GetPokemonUseCaseTest {
 
     lateinit var getPokemonUseCase: GetPokemonUseCase
 
-
     @MockK
     lateinit var mockRepository: PokemonRepository
 

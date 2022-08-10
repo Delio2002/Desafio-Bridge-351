@@ -1,13 +1,14 @@
 package com.example.pokemonapp2022.presenter.home.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.example.pokemonapp2022.domain.model.PokemonList
-import com.example.pokemonapp2022.domain.model.Result
+import com.example.pokemonapp2022.domain.model.PokemonItem
 import com.example.pokemonapp2022.domain.usecase.GetAllPokemonUseCase
 import com.example.pokemonapp2022.network.utils.ResultRemote
 import com.example.pokemonapp2022.presenter.home.HomeViewState
-import com.example.pokemonapp2022.presenter.home.mapper.toPokemonDataUi
+import com.example.pokemonapp2022.presenter.home.mapper.toPokemonItemDataUi
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -25,12 +26,9 @@ import org.junit.rules.TestRule
 
 private lateinit var viewModel: HomeViewModel
 
-private val mockPokemonList = PokemonList(
-    results = listOf(Result(name = "teste", url = "testkjhkhkh/88876asdsaddsfs.com")),
-    next = "",
-)
+private val mockPokemonItemList = listOf(PokemonItem(name = "teste", url = "testkjhkhkh/88876asdsaddsfs.com"))
 
-private val mockPokemonDetailsDataUi = mockPokemonList.results.map { it.toPokemonDataUi() }
+private val mockPokemonItemDataUiList = mockPokemonItemList.map { it.toPokemonItemDataUi() }
 
 @ExperimentalCoroutinesApi
 class HomeViewModelTest {
@@ -47,7 +45,6 @@ class HomeViewModelTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        viewModel = HomeViewModel(mockGetAllPokemonUseCase, testDispatcher)
     }
 
     @After
@@ -56,41 +53,14 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `fetchPokemonList SHOULD emit HomeViewState Loading and Success to View WHEN receive Pokemon list with Success`() {
+    fun `fetchPokemonList SHOULD emit HomeViewState Loading and Success to View`() {
         runBlocking {
-
-            var mockResultRemote = ResultRemote.Success(mockPokemonList)
-
-            coEvery { mockGetAllPokemonUseCase.invoke() } returns flowOf(mockResultRemote)
-
-            viewModel.fetchPokemonList()
+            coEvery { mockGetAllPokemonUseCase.invoke() } returns flowOf(PagingData.from(mockPokemonItemList))
+            viewModel = HomeViewModel(mockGetAllPokemonUseCase, testDispatcher)
             viewModel.state.test {
-                viewModel.fetchPokemonList()
+                viewModel = HomeViewModel(mockGetAllPokemonUseCase, testDispatcher)
                 assertEquals(HomeViewState.Loading, awaitItem())
-                assertEquals(HomeViewState.Success(mockPokemonDetailsDataUi), awaitItem())
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-    }
-
-    @Test
-    fun `fetchPokemonList SHOULD emit HomeViewState Loading and Error to View WHEN receive mapped Error`() {
-        runBlocking {
-
-            val networkError = ResultRemote.NetworkErrors.CONNECTION_SHUTDOWN
-
-            coEvery { mockGetAllPokemonUseCase.invoke() } returns flowOf(
-                ResultRemote.ErrorResponse.MappedError(
-                    networkError
-                )
-            )
-
-            viewModel.fetchPokemonList()
-
-            viewModel.state.test {
-                viewModel.fetchPokemonList()
-                assertEquals(HomeViewState.Loading, awaitItem())
-                assertEquals(HomeViewState.Error(networkError.name), awaitItem())
+                assertEquals(HomeViewState.Success(PagingData.from(mockPokemonItemDataUiList)), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
